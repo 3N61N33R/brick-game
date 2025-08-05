@@ -33,10 +33,27 @@ class Ball {
   }
   
   void checkPaddle(Paddle p) {
-    if (x + diameter/2 > p.x && x - diameter/2 < p.x + p.w &&
-        y + diameter/2 > p.y && y - diameter/2 < p.y + p.h) {   
+    // Calculate next position of the ball
+    float nextX = x + xSpeed;
+    float nextY = y + ySpeed;
+
+    // Check for collision with paddle at next position
+    if (nextX + diameter/2 > p.x && nextX - diameter/2 < p.x + p.w &&
+        nextY + diameter/2 > p.y && nextY - diameter/2 < p.y + p.h) {   
+          // If collision is detected, move ball back to just before collision
+          // and then reverse ySpeed
+          y = p.y - diameter/2; // Snap to top of paddle
           ySpeed *= -1;
-          y = p.y - diameter/2; // bounce on top of paddle
+          
+          // Add some angle based on where the ball hit the paddle
+          float hitPos = (x + diameter/2 - p.x) / p.w; // 0 to 1 across paddle
+          float angle = map(hitPos, 0, 1, PI + QUARTER_PI, TWO_PI - QUARTER_PI); // Angle from 135 to 45 degrees
+          xSpeed = 5 * cos(angle);
+          ySpeed = 5 * sin(angle);
+
+          // Increase ball speed
+          if (abs(xSpeed) < 10) xSpeed *= 1.05;
+          if (abs(ySpeed) < 10) ySpeed *= 1.05;
     }
   }
 
